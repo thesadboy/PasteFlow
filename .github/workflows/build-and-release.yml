@@ -2,8 +2,6 @@ name: 自动编译与 Release 发布
 
 on:
   push:
-    branches:
-      - main
     tags:
       - 'v*'
   workflow_dispatch:
@@ -12,7 +10,7 @@ on:
         description: '是否直接创建 GitHub Release'
         required: false
         type: boolean
-        default: false
+        default: true
 
 permissions:
   contents: write

@@ -44,7 +44,7 @@
 		</dict>
 	</array>
 	<key>SUFeedURL</key>
-	<string>https://raw.githubusercontent.com/thesadboy/PasteFlow/main/appcast.xml</string>
+	<string>https://thesadboy.github.io/PasteFlow/appcast.xml</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUScheduledCheckInterval</key>
