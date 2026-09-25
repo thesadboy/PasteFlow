@@ -333,6 +333,9 @@
               查看源码仓库
             </a>
           </div>
+          <div style="font-size: 0.825rem; color: var(--text-tertiary); margin-top: -12px; margin-bottom: 24px;">
+            💡 提示：首次打开若遇 macOS 安全拦截提示，终端运行 <code>xattr -cr /Applications/PasteFlow.app</code> 即可直接解除。
+          </div>
 
           <div style="margin-top: 30px;">
             <div style="font-size: 0.85rem; color: var(--text-tertiary); margin-bottom: 8px;">或者通过源码快速编译安装（开发者极速体验）：</div>
@@ -354,7 +357,20 @@
           <p class="section-subtitle">关于权限、隐私与兼容性的疑问解答</p>
         </div>
 
-        <div class="faq-list">
+          <div class="faq-list">
+          <div class="faq-item active">
+            <button class="faq-question">
+              <span>首次打开提示「Apple 无法验证是否包含恶意软件」被拦截怎么办？</span>
+              <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="faq-answer">
+              这是 macOS 对未加入苹果年费开发者计划公证的开源应用施加的安全隔离限制。<br><br>
+              <strong>极速解除（终端运行一行命令）：</strong><br>
+              <code style="display:inline-block; margin: 6px 0; background:rgba(0,0,0,0.4); padding:4px 10px; border-radius:6px; color:#38bdf8;">xattr -cr /Applications/PasteFlow.app</code><br><br>
+              <em>或者：打开访达「应用程序」目录，<strong>按住 Control 键点击 PasteFlow 图标</strong>选择「打开」，在弹出窗口点击「仍要打开」即可。</em>
+            </div>
+          </div>
+
           <div class="faq-item">
             <button class="faq-question">
               <span>为什么 PasteFlow 首次运行时需要「辅助功能」权限？</span>

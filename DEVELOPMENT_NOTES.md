@@ -9,7 +9,7 @@
 PasteFlow 是一款 macOS 剪贴板管理工具。通过菜单栏图标或快捷键 `Cmd+Shift+V` 唤出一个横向卡片弹层，展示剪贴板历史，支持搜索、分类、分组、快速粘贴等功能。
 
 **当前版本：** v1.0.0 (Build 1)  
-**技术栈：** Swift 5 + SwiftUI + AppKit + Sparkle 2.x  
+**技术栈：** Swift 5.9 + SwiftUI + AppKit + 原生 GitHub Releases API 升级引擎 (零外部依赖)  
 **最低系统要求：** macOS 13.0 (Ventura)  
 **构建方式：** Swift Package Manager (SPM)
 
@@ -274,14 +274,13 @@ macOS 的 TCC 权限数据库缓存的是 App 的二进制签名。开发期间�
 
 ## 包体积构成与优化策略
 
-随着 **Sparkle 自动更新框架** 的接入，安装包从最初纯 Swift（约 4.8MB）一度增长至约 10.3MB。经详细分析并实施自动化裁剪瘦身，目前已压减至 **6.6MB**：
+应用采用**纯 Swift 原生架构**，彻底移除了第三方 Sparkle 依赖，安装包体积仅 **2.2MB**，常驻内存仅约 8MB：
 
-| 组成部分 | 原始体积 | 优化后体积 | 说明 |
-| :--- | :--- | :--- | :--- |
-| **`Contents/MacOS/PasteFlow`** | 3.7MB | **1.2MB** | 经 `strip -u -r` 剥离调试符号与无效重定向表（减少 68%） |
-| **`Contents/Frameworks/Sparkle.framework`** | 4.9MB | **3.7MB** | 剥离开发用 C Headers、移除冗余调试表；包含独立 `Updater.app` 与 2 个 XPC 子进程 |
-| **`Contents/Resources`** | 1.7MB | **1.7MB** | 包含 1024x1024 Retina 多分辨率 `AppIcon.icns`（1.6MB）与交互提示音（97KB） |
-| **整体 .app 体积** | **10.3MB** | **6.6MB** | 自动化集成于 `scripts/build.sh`，构建打包时在代码签名之前自动执行 |
+| 组成部分 | 优化后体积 | 说明 |
+| :--- | :--- | :--- |
+| **`Contents/MacOS/PasteFlow`** | **1.2MB** | 经 `strip -u -r` 剥离调试符号与无效重定向表（减少 68%） |
+| **`Contents/Resources`** | **1.7MB** | 包含 1024x1024 Retina 多分辨率 `AppIcon.icns`（1.6MB）与交互提示音（97KB） |
+| **整体 DMG 安装包体积** | **2.2MB** | 极致精简，零外部三方动态库或框架 |
 
 ---
 
@@ -299,7 +298,7 @@ macOS 的 TCC 权限数据库缓存的是 App 的二进制签名。开发期间�
 - [x] 图片异步加载与内存二级缓存（基于 `ObservableObject` 规避 SPM 环境 `@State` 宏限制，后台异步解码 + 骨架加载占位）
 - [x] 支持富文本（RTF / HTML）类型预览（自动适配深浅色模式对比度、防超大字号变形、独立“富文本”徽章）
 - [x] 搜索结果高亮（支持关键词多词切分，对文本、富文本、代码、链接、文件名均做醒目高亮标注）
-- [x] Sparkle 自动更新框架接入（基于 Universal Sparkle.xcframework 与 SPUStandardUpdaterController，覆盖菜单栏、关于界面与每日自动检测）
+- [x] 原生 GitHub Releases API 在线更新（参照 MenuBarPulse 架构，支持后台版本比对、界面进度条、静默挂载 DMG 自动覆盖安装与重启）
 - [x] 更丰富的分组管理（支持分组标签左右拖拽重排、卡片原生拖入分组与移出、右键快捷上下移动与清空、设置面板一键排序）
 - [x] 底部设置按钮升级为下拉菜单（集成「设置...」、「暂停/启用 PasteFlow」、「退出 PasteFlow」，支持暂停状态橙点提示与全局同步）
 - [x] 二次打开/重复运行唤醒（支持双击应用图标、Spotlight / 启动台再次打开时自动呼出底部弹窗面板）

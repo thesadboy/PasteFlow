@@ -45,9 +45,9 @@
   - 历史数据纯本地加密存储于 `~/Library/Application Support/PasteFlow/`；
   - 支持多档历史保留期限与一键安全清空。
 
-- **🔄 Sparkle 自动更新机制**：
-  - 内置行业标准的 Sparkle 2.x 升级引擎；
-  - 自动轮询版本源，支持一键差量升级与平滑重启。
+- **🔄 原生无缝自动更新**：
+  - 直连 GitHub Releases 官方 API，零外部依赖；
+  - 界面内实时展示下载进度条，支持自动覆盖安装与平滑重启。
 
 ---
 
@@ -84,18 +84,27 @@ cd PasteFlow
 
 > **系统要求**：macOS 13.0 (Ventura) 及更高版本（原生支持 Apple Silicon M 系列芯片与 Intel 处理器）。
 
+#### ⚠️ 首次打开提示「无法验证开发者 / 恶意软件」怎么办？
+由于开源软件未加入苹果年费开发者计划公证，macOS Gatekeeper 会对下载的应用施加安全隔离限制。
+
+**最快解除方式（终端一行命令）：**
+```bash
+xattr -cr /Applications/PasteFlow.app
+```
+*或：打开「访达」->「应用程序」，**按住 Control 键点击 PasteFlow 图标**并选择「打开」，在弹出窗口点击「仍要打开」即可。*
+
 ---
 
 ## 🔄 升级与更新
 
-PasteFlow 基于 **Sparkle 2.x** 提供了完整的无缝升级支持：
+PasteFlow 内置了轻量高效的**纯原生无缝升级引擎**（直连 GitHub Releases API）：
 
-1. **自动检查**：应用在后台按设定周期自动检索新版本；
-2. **手动检查**：
-   - 点击状态栏 PasteFlow 图标 -> 选择 **「检查更新...」**
-   - 或进入 **「偏好设置 -> 关于」** 点击 **「检查更新」**
-3. **升级源地址**：
-   - 官方更新 Feed：`https://thesadboy.github.io/PasteFlow/appcast.xml`
+1. **版本检测**：自动获取官方最新发布的 Release 版本、更新日志与 DMG 下载包；
+2. **可视化进度与一键安装**：
+   - 在「偏好设置 -> 关于」中点击 **「检查更新」**；
+   - 发现新版本时显示版本号，点击 **「下载并安装更新」** 直接在界面内显示下载进度条；
+   - 下载完成后，应用会在后台自动挂载 DMG 并更新覆盖 `/Applications/PasteFlow.app`，随后平滑重启生效。
+3. **状态栏快捷检查**：随时点击状态栏 PasteFlow 图标 -> 选择 **「检查更新...」** 即可。
 
 ---
 
@@ -112,12 +121,11 @@ PasteFlow 基于 **Sparkle 2.x** 提供了完整的无缝升级支持：
 PasteFlow/
 ├── Sources/PasteFlow/
 │   ├── App/          # 应用生命周期 AppDelegate 与 AppState 状态单例
-│   ├── Core/         # 剪贴板监听、粘贴执行、热键捕获、本地持久化与 Sparkle 升级管理器
+│   ├── Core/         # 剪贴板监听、粘贴执行、热键捕获、本地持久化与 GitHub Releases 升级管理器
 │   ├── Models/       # ClipItem、ContentType 与 Pinboard 数据模型
 │   └── UI/           # SwiftUI & AppKit 混合视图（卡片、毛玻璃弹层、偏好设置、状态栏菜单）
 ├── docs/             # 官方网站 Landing Page（托管于 GitHub Pages）
 ├── scripts/          # 本地编译 build.sh、安装启动 run.sh 与打包发布 dist.sh
-├── appcast.xml       # Sparkle 自动更新 RSS 描述文件
 └── Package.swift     # Swift Package 依赖与构建配置
 ```
 

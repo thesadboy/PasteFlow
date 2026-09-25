@@ -43,13 +43,5 @@
 			</array>
 		</dict>
 	</array>
-	<key>SUFeedURL</key>
-	<string>https://thesadboy.github.io/PasteFlow/appcast.xml</string>
-	<key>SUEnableAutomaticChecks</key>
-	<true/>
-	<key>SUScheduledCheckInterval</key>
-	<integer>86400</integer>
-	<key>SUPublicEDKey</key>
-	<string>p8+Sg/eF1n3e9jW4jQx+G0s0w0yFwUj2E8Qf5G5k1Y8=</string>
 </dict>
 </plist>

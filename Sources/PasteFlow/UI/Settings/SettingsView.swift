@@ -341,6 +341,7 @@ public struct SettingsView: View {
     @ObservedObject private var appState = AppState.shared
     @ObservedObject private var hotkeyManager = HotkeyManager.shared
     @ObservedObject private var privacyManager = PrivacyManager.shared
+    @ObservedObject private var updater = UpdateManager.shared
     
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
@@ -1398,42 +1399,54 @@ public struct SettingsView: View {
             .padding(.horizontal, 4)
             .padding(.top, 4)
             
-            // Section 1: 软件更新 (Sparkle)
+            // Section 1: 软件更新 (原生 GitHub Releases 引擎)
             settingsCard(title: "软件更新") {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("当前版本")
-                            .font(.system(size: 13, weight: .regular))
-                            .foregroundColor(.primary)
-                        Text("PasteFlow v\(appVersion) (Build \(buildNumber))")
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("当前版本")
+                                .font(.system(size: 13, weight: .regular))
+                                .foregroundColor(.primary)
+                            Text("PasteFlow v\(appVersion) (Build \(buildNumber))")
+                                .font(.system(size: 11))
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        if updater.isDownloading {
+                            ProgressView(value: updater.downloadProgress)
+                                .progressViewStyle(LinearProgressViewStyle())
+                                .frame(width: 140)
+                        } else if updater.downloadURL != nil || updater.newVersionURL != nil {
+                            Button {
+                                updater.downloadAndInstall()
+                            } label: {
+                                Text(updater.downloadURL != nil ? "下载并安装更新" : "前往主页下载")
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.regular)
+                        } else {
+                            Button {
+                                updater.checkForUpdates(manual: true)
+                            } label: {
+                                Text(updater.isChecking ? "正在检查..." : "检查更新...")
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.regular)
+                            .disabled(updater.isChecking)
+                        }
+                    }
+                    
+                    if let status = updater.updateStatus {
+                        Text(status)
                             .font(.system(size: 11))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(updater.newVersionString != nil && !updater.isDownloading ? .green : .secondary)
                     }
-                    
-                    Spacer()
-                    
-                    Button {
-                        UpdateManager.shared.checkForUpdates()
-                    } label: {
-                        Text("检查更新...")
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.regular)
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 10)
+                .padding(.vertical, 12)
                 .frame(maxWidth: .infinity)
-                
-                cardDivider()
-                
-                settingToggleRow(
-                    title: "自动检查更新",
-                    subtitle: "在后台定期安全检查新版本发布",
-                    isOn: Binding(
-                        get: { UpdateManager.shared.automaticallyChecksForUpdates },
-                        set: { UpdateManager.shared.automaticallyChecksForUpdates = $0 }
-                    )
-                )
             }
             
             // Section 2: 技术支持与项目
@@ -1448,7 +1461,7 @@ public struct SettingsView: View {
                     }
                     Spacer()
                     Button {
-                        if let url = URL(string: "https://github.com") {
+                        if let url = URL(string: "https://github.com/thesadboy/PasteFlow") {
                             NSWorkspace.shared.open(url)
                         }
                     } label: {

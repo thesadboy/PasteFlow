@@ -11,15 +11,9 @@ let package = Package(
     ],
     dependencies: [],
     targets: [
-        .binaryTarget(
-            name: "Sparkle",
-            path: "Frameworks/Sparkle.xcframework"
-        ),
         .executableTarget(
             name: "PasteFlow",
-            dependencies: [
-                "Sparkle"
-            ],
+            dependencies: [],
             path: "Sources/PasteFlow",
             resources: [
                 .process("Resources")
