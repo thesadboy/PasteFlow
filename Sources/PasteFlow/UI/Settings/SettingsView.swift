@@ -1389,10 +1389,18 @@ public struct SettingsView: View {
                         .font(.system(size: 13))
                         .foregroundColor(.secondary)
                     
-                    let bundleId = Bundle.main.bundleIdentifier ?? "com.nick.pasteflow"
-                    Text("Bundle ID: \(bundleId) · Build \(buildNumber)")
-                        .font(.system(size: 11, design: .monospaced))
-                        .foregroundColor(.secondary.opacity(0.8))
+                    HStack(spacing: 8) {
+                        Text("开发者：NickZhang")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(.secondary)
+                        Text("•")
+                            .font(.system(size: 10))
+                            .foregroundColor(.secondary.opacity(0.5))
+                        let bundleId = Bundle.main.bundleIdentifier ?? "com.nick.pasteflow"
+                        Text("Bundle ID: \(bundleId)")
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundColor(.secondary.opacity(0.8))
+                    }
                 }
                 
                 Spacer()
@@ -1400,7 +1408,7 @@ public struct SettingsView: View {
             .padding(.horizontal, 4)
             .padding(.top, 4)
             
-            // Section 1: 软件更新 (原生 GitHub Releases 引擎)
+            // Section 1: 软件更新 (对齐 MenuBarPulse 原生架构)
             settingsCard(title: "软件更新") {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
@@ -1419,18 +1427,20 @@ public struct SettingsView: View {
                             ProgressView(value: updater.downloadProgress)
                                 .progressViewStyle(LinearProgressViewStyle())
                                 .frame(width: 140)
-                        } else if updater.downloadURL != nil || updater.newVersionURL != nil {
-                            Button {
-                                updater.downloadAndInstall()
-                            } label: {
-                                Text(updater.downloadURL != nil ? "下载并安装更新" : "前往主页下载")
+                        } else if let _ = updater.newVersionURL {
+                            Button(updater.downloadURL != nil ? "下载并安装更新" : "前往主页下载") {
+                                if updater.downloadURL != nil {
+                                    updater.downloadAndInstall()
+                                } else if let url = updater.newVersionURL {
+                                    NSWorkspace.shared.open(url)
+                                }
                             }
                             .buttonStyle(.borderedProminent)
                             .controlSize(.regular)
                         } else {
-                            Button {
-                                updater.checkForUpdates(manual: true)
-                            } label: {
+                            Button(action: {
+                                updater.checkForUpdates()
+                            }) {
                                 Text(updater.isChecking ? "正在检查..." : "检查更新...")
                             }
                             .buttonStyle(.borderedProminent)
@@ -1442,7 +1452,7 @@ public struct SettingsView: View {
                     if let status = updater.updateStatus {
                         Text(status)
                             .font(.system(size: 11))
-                            .foregroundColor(updater.newVersionString != nil && !updater.isDownloading ? .green : .secondary)
+                            .foregroundColor(updater.newVersionURL != nil && !updater.isDownloading ? .green : .secondary)
                     }
                 }
                 .padding(.horizontal, 16)
@@ -1452,6 +1462,34 @@ public struct SettingsView: View {
             
             // Section 2: 技术支持与项目
             settingsCard(title: "支持与社区") {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("官方网站与在线体验")
+                            .font(.system(size: 13, weight: .regular))
+                        Text("浏览交互演示、快捷键速查与最新动态")
+                            .font(.system(size: 11))
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
+                    Button {
+                        if let url = URL(string: "https://thesadboy.github.io/PasteFlow/") {
+                            NSWorkspace.shared.open(url)
+                        }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text("访问官网")
+                            Image(systemName: "safari")
+                                .font(.system(size: 10))
+                        }
+                    }
+                    .buttonStyle(.bordered)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .frame(maxWidth: .infinity)
+                
+                cardDivider()
+                
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("开源主页与代码仓库")

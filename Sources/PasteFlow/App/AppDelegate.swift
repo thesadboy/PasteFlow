@@ -277,7 +277,7 @@ public final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate 
     }
     
     @objc private func checkForUpdates() {
-        UpdateManager.shared.checkForUpdates(manual: true)
+        UpdateManager.shared.checkForUpdates()
     }
     
     @objc private func resumeMonitoringAction() {

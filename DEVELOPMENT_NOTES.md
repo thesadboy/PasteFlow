@@ -8,7 +8,7 @@
 
 PasteFlow 是一款 macOS 剪贴板管理工具。通过菜单栏图标或快捷键 `Cmd+Shift+V` 唤出一个横向卡片弹层，展示剪贴板历史，支持搜索、分类、分组、快速粘贴等功能。
 
-**当前版本：** v1.0.2 (Build 3)  
+**当前版本：** v1.0.3 (Build 4)  
 **技术栈：** Swift 5.9 + SwiftUI + AppKit + 原生 GitHub Releases API 升级引擎 (零外部依赖)  
 **最低系统要求：** macOS 13.0 (Ventura)  
 **构建方式：** Swift Package Manager (SPM)
