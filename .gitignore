@@ -1,6 +1,7 @@
 # Xcode / SPM Build Artifacts
 .build/
 build/
+dist/
 DerivedData/
 *.xcworkspace
 *.xcuserdata/

@@ -77,17 +77,19 @@ public enum RichTextHelper {
         }
         
         // Adapt foreground colors for contrast against card background
-        mutable.enumerateAttribute(.foregroundColor, in: fullRange, options: []) { value, range, _ in
-            if let color = value as? NSColor {
-                if let rgbColor = color.usingColorSpace(.sRGB) {
-                    let brightness = (rgbColor.redComponent * 299 + rgbColor.greenComponent * 587 + rgbColor.blueComponent * 114) / 1000
-                    if isDarkMode && brightness < 0.28 {
-                        mutable.addAttribute(.foregroundColor, value: NSColor.labelColor, range: range)
-                    } else if !isDarkMode && brightness > 0.82 {
-                        mutable.addAttribute(.foregroundColor, value: NSColor.labelColor, range: range)
-                    }
-                }
-            } else {
+        mutable.enumerateAttribute(.foregroundColor, in: fullRange, options: []) { (value: Any?, range: NSRange, _: UnsafeMutablePointer<ObjCBool>) in
+            guard let color = value as? NSColor,
+                  let rgbColor = color.usingColorSpace(.sRGB) else {
+                mutable.addAttribute(.foregroundColor, value: NSColor.labelColor, range: range)
+                return
+            }
+            let r: CGFloat = rgbColor.redComponent
+            let g: CGFloat = rgbColor.greenComponent
+            let b: CGFloat = rgbColor.blueComponent
+            let brightness: CGFloat = (r * 0.299) + (g * 0.587) + (b * 0.114)
+            if isDarkMode && brightness < 0.28 {
+                mutable.addAttribute(.foregroundColor, value: NSColor.labelColor, range: range)
+            } else if !isDarkMode && brightness > 0.82 {
                 mutable.addAttribute(.foregroundColor, value: NSColor.labelColor, range: range)
             }
         }
