@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PasteFlow (流贴) - 原生 macOS 剪贴板效率神器</title>
+  <meta name="description" content="PasteFlow 是一款专为 macOS 打造的高性能、沉浸式原生剪贴板管理工具。提供横向卡片流、秒级呼出、原生文件流转、代码高亮与全键盘盲打体验。">
+  <meta name="keywords" content="PasteFlow, macOS, 剪贴板历史, 效率工具, 剪贴板管理, 开发者工具, 快捷键, Finder">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/app-icon-192.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Atmosphere Glows -->
+  <div class="bg-glow-container">
+    <div class="bg-glow-top"></div>
+    <div class="bg-glow-accent"></div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-content">
+      <a href="#" class="brand">
+        <img src="assets/app-icon.png" alt="PasteFlow Icon" class="brand-icon">
+        <span>PasteFlow</span>
+        <span class="brand-tag">流贴</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#demo" class="nav-link">交互体验</a></li>
+        <li><a href="#features" class="nav-link">核心特性</a></li>
+        <li><a href="#shortcuts" class="nav-link">快捷键</a></li>
+        <li><a href="#download" class="nav-link">下载与安装</a></li>
+        <li><a href="#faq" class="nav-link">常见问题</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="https://github.com/thesadboy/PasteFlow" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+          </svg>
+          <span>GitHub</span>
+        </a>
+        <a href="#download" class="btn btn-primary">免费下载</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div class="badge-capsule">
+          <span class="pulse-dot"></span>
+          <span>PasteFlow v1.0 现已就绪 · 原生 macOS 架构</span>
+        </div>
+        <h1 class="hero-title">
+          流动的剪贴板，<br>
+          <span class="gradient-text">极致的键盘操作美学。</span>
+        </h1>
+        <p class="hero-subtitle">
+          秒级呼出、横向流转、原生 Finder 文件流转与富文本全支持。<br>
+          不夺焦点、纯本地持久化，为极客、开发者与设计师量身打造的原生剪贴板管理器。
+        </p>
+        <div class="hero-cta">
+          <a href="#download" class="btn btn-primary btn-large">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>下载 macOS 版 (.dmg)</span>
+          </a>
+          <a href="#demo" class="btn btn-secondary btn-large">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <span>在线模拟体验</span>
+          </a>
+        </div>
+        <div class="hero-meta">
+          <span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"></path><path d="M12 6v6l4 2"></path></svg>
+            macOS 13.0+ (Ventura / Sonoma / Sequoia)
+          </span>
+          <span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+            Apple Silicon & Intel 原生运行
+          </span>
+          <span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            100% 离线安全 · 零外部网络请求
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Interactive Simulator Section -->
+    <section id="demo" class="stage-section">
+      <div class="container">
+        <div class="stage-wrapper">
+          <div class="stage-header">
+            <div class="stage-title-wrap">
+              <div class="stage-dots">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+              </div>
+              <span class="stage-heading">交互预览：PasteFlow 悬浮弹层仿真</span>
+            </div>
+            <div class="stage-controls-hint">
+              <span>快捷提示：使用键盘 <kbd>←</kbd> <kbd>→</kbd> 切换卡片，按 <kbd>↩ Return</kbd> 模拟粘贴</span>
+            </div>
+          </div>
+
+          <!-- Simulated Window -->
+          <div class="sim-overlay">
+            <div class="sim-top-bar">
+              <div class="sim-search-box">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="simSearchInput" class="sim-search-input" placeholder="实时搜索剪贴历史 (例如: swift, figma, dmg)...">
+              </div>
+              <div class="sim-tabs">
+                <button class="sim-tab active" data-category="all">全部历史</button>
+                <button class="sim-tab" data-category="code">代码</button>
+                <button class="sim-tab" data-category="color">色值</button>
+                <button class="sim-tab" data-category="file">文件</button>
+                <button class="sim-tab" data-category="link">链接</button>
+                <button class="sim-tab" data-category="text">纯文本</button>
+              </div>
+            </div>
+
+            <!-- Simulated Deck -->
+            <div class="sim-deck" id="simDeck">
+              <!-- Rendered dynamically by JavaScript -->
+            </div>
+
+            <div class="sim-footer-status">
+              <div>
+                <span>支持全局快捷键唤出：</span>
+                <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd>
+                <span style="margin-left: 8px; color: var(--text-tertiary);">(支持在设置中自定义录制)</span>
+              </div>
+              <div id="copyToast" class="copy-toast">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+                <span>已复制该卡片到系统剪贴板！</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Core Features Bento Grid -->
+    <section id="features" class="features-section">
+      <div class="container">
+        <div class="section-title-wrap">
+          <span class="section-label">Features & Highlights</span>
+          <h2 class="section-title">专为 macOS 打磨的每一处细节</h2>
+          <p class="section-subtitle">告别臃肿的 Electron，拥抱真正轻巧、瞬时响应的纯原生剪贴体验。</p>
+        </div>
+
+        <div class="bento-grid">
+          <!-- Card 1 -->
+          <div class="bento-card col-span-2">
+            <div class="bento-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </div>
+            <h3 class="bento-title">原生文件全流转 (Finder Native)</h3>
+            <p class="bento-desc">
+              不仅能复制文本与图片，PasteFlow 深度集成 macOS 文件描述符。自动感知 Finder 复制的文件与文件夹，动态提取系统原生文件类型图标（PDF、DMG、ZIP 等），粘贴时可直接回填至 Finder、桌面、微信或终端，告别单纯路径文本的尴尬。
+            </p>
+            <div class="feature-tags">
+              <span class="feature-tag">真实文件对象</span>
+              <span class="feature-tag">原生图标渲染</span>
+              <span class="feature-tag">多文件打包</span>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="bento-card">
+            <div class="bento-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+            </div>
+            <h3 class="bento-title">零焦点干扰架构</h3>
+            <p class="bento-desc">
+              采用底层 <code>nonactivatingPanel</code> 悬浮设计。无论你在哪款应用敲击，呼出 PasteFlow 都绝不会夺走当前编辑器的光标与窗口焦点，选定后毫秒级还原。
+            </p>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="bento-card">
+            <div class="bento-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+            </div>
+            <h3 class="bento-title">全键盘盲打设计</h3>
+            <p class="bento-desc">
+              双手无需离开键盘：<kbd>⌘ 1</kbd> ~ <kbd>⌘ 9</kbd> 极速粘贴前九项；按 <kbd>↩</kbd> 即时送达；<kbd>⇧ ↩</kbd> 智能滤除样式、纯文本安全直出。
+            </p>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="bento-card">
+            <div class="bento-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            </div>
+            <h3 class="bento-title">多维语义自动识别</h3>
+            <p class="bento-desc">
+              自动探测复制内容的类型：十六进制 Hex 色值直接生成预览色块；代码片段语法关键字侦测；URL 链接快速直达，清晰一目了然。
+            </p>
+          </div>
+
+          <!-- Card 5 -->
+          <div class="bento-card">
+            <div class="bento-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <h3 class="bento-title">纯本地与绝对隐私</h3>
+            <p class="bento-desc">
+              不含任何数据统计 SDK、零网络请求、无需注册登录。所有数据存储于本地 Application Support，并提供多档自动清理保留期。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Shortcuts Cheatsheet -->
+    <section id="shortcuts" class="shortcuts-section">
+      <div class="container">
+        <div class="section-title-wrap">
+          <span class="section-label">Efficiency Cheatsheet</span>
+          <h2 class="section-title">行云流水的快捷键</h2>
+          <p class="section-subtitle">专为键盘极客优化，所有按键均经过严苛的人机工学调试。</p>
+        </div>
+
+        <div style="max-width: 800px; margin: 0 auto;">
+          <table class="shortcuts-table">
+            <tbody>
+              <tr>
+                <td>
+                  <div class="key-combo">
+                    <span class="kbd">⌘</span>
+                    <span class="kbd">⇧</span>
+                    <span class="kbd">V</span>
+                  </div>
+                </td>
+                <td><strong>唤出 / 隐藏面板</strong>（支持在偏好设置中一键自定义）</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="key-combo">
+                    <span class="kbd">↩ Return</span>
+                  </div>
+                </td>
+                <td><strong>直接粘贴</strong>（自动激活目标 App 并注入粘贴事件）</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="key-combo">
+                    <span class="kbd">⇧</span>
+                    <span class="kbd">↩ Return</span>
+                  </div>
+                </td>
+                <td><strong>以纯文本粘贴</strong>（自动去除富文本格式与杂乱样式）</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="key-combo">
+                    <span class="kbd">⌘</span>
+                    <span class="kbd">1</span> ~ <span class="kbd">9</span>
+                  </div>
+                </td>
+                <td><strong>瞬发粘贴前 9 项</strong>（直观数字标记，无需移动光标）</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="key-combo">
+                    <span class="kbd">←</span> / <span class="kbd">→</span>
+                  </div>
+                </td>
+                <td><strong>左右浏览卡片</strong>（平滑滚动并自动对齐）</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="key-combo">
+                    <span class="kbd">⌫ Delete</span>
+                  </div>
+                </td>
+                <td><strong>删除选中卡片</strong>（仅在卡片浏览态有效，智能避开搜索文字删除）</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="key-combo">
+                    <span class="kbd">⌘</span>
+                    <span class="kbd">,</span>
+                  </div>
+                </td>
+                <td><strong>打开偏好设置</strong>（历史时长、热键绑定、音效控制）</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="key-combo">
+                    <span class="kbd">Esc</span>
+                  </div>
+                </td>
+                <td><strong>关闭浮层面板</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="download-section">
+      <div class="container">
+        <div class="download-box">
+          <h2>即刻下载 PasteFlow</h2>
+          <p>免费、开源、无广告。开启优雅高效的剪贴板体验。</p>
+          
+          <div class="download-options">
+            <a href="https://github.com/thesadboy/PasteFlow/releases" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-large">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>前往 GitHub 下载 DMG 安装包</span>
+            </a>
+            <a href="https://github.com/thesadboy/PasteFlow" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-large">
+              查看源码仓库
+            </a>
+          </div>
+
+          <div style="margin-top: 30px;">
+            <div style="font-size: 0.85rem; color: var(--text-tertiary); margin-bottom: 8px;">或者通过源码快速编译安装（开发者极速体验）：</div>
+            <div class="terminal-block">
+              <code>git clone https://github.com/thesadboy/PasteFlow.git && cd PasteFlow && ./scripts/run.sh</code>
+              <button class="btn-copy-code" data-code="git clone https://github.com/thesadboy/PasteFlow.git && cd PasteFlow && ./scripts/run.sh">复制</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="faq-section">
+      <div class="container">
+        <div class="section-title-wrap">
+          <span class="section-label">FAQ</span>
+          <h2 class="section-title">常见问题</h2>
+          <p class="section-subtitle">关于权限、隐私与兼容性的疑问解答</p>
+        </div>
+
+        <div class="faq-list">
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>为什么 PasteFlow 首次运行时需要「辅助功能」权限？</span>
+              <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="faq-answer">
+              macOS 的安全机制要求模拟键盘事件（例如自动在其他应用程序中注入 <code>⌘ V</code> 进行真实粘贴）必须获取系统辅助功能（Accessibility）授权。PasteFlow 绝不会利用该权限监听任何敏感输入或密码。
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>我的剪贴板历史数据会被上传到云端吗？</span>
+              <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="faq-answer">
+              绝对不会。PasteFlow 没有配置任何网络请求模块或数据分析追踪。所有剪贴板记录保存在您本机的 <code>~/Library/Application Support/PasteFlow/</code> 目录下，且支持在偏好设置中灵活设置历史保留期限或一键清空。
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>是否支持苹果 M 系列 Apple Silicon 芯片？</span>
+              <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="faq-answer">
+              全面原生支持。PasteFlow 采用原生 Swift 构建，完美适配 Apple Silicon (M1/M2/M3/M4 系列) 以及传统 Intel 架构处理器，内存占用仅约 30MB 左右，极度轻巧省电。
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>如何自定义唤出快捷键？</span>
+              <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="faq-answer">
+              通过按快捷键 <code>⌘ ,</code> 或点击状态栏图标进入「偏好设置 -> 快捷键」，点击录制按钮，随后在物理键盘上直接按下你习惯的组合键（如 <code>⌥ Space</code> 或 <code>⌥ V</code>），即可即时生效。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div>
+        <p>© 2026 PasteFlow (流贴). Designed with precision for macOS.</p>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/thesadboy/PasteFlow" target="_blank" rel="noopener noreferrer">GitHub 仓库</a>
+        <a href="https://github.com/thesadboy/PasteFlow/releases" target="_blank" rel="noopener noreferrer">更新日志</a>
+        <a href="https://github.com/thesadboy/PasteFlow/issues" target="_blank" rel="noopener noreferrer">问题反馈</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>zh_CN</string>
+	<key>CFBundleExecutable</key>
+	<string>PasteFlow</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.ma.pasteflow</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>PasteFlow</string>
+	<key>CFBundleDisplayName</key>
+	<string>PasteFlow</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>13.0</string>
+	<key>LSUIElement</key>
+	<true/>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSSupportsAutomaticGraphicsSwitching</key>
+	<true/>
+	<key>NSAccessibilityUsageDescription</key>
+	<string>PasteFlow 需要系统辅助功能权限以直接将内容粘贴到您当前使用的软件中。</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.ma.pasteflow</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>pasteflow</string>
+			</array>
+		</dict>
+	</array>
+	<key>SUFeedURL</key>
+	<string>https://raw.githubusercontent.com/thesadboy/PasteFlow/main/appcast.xml</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
+	<key>SUPublicEDKey</key>
+	<string>p8+Sg/eF1n3e9jW4jQx+G0s0w0yFwUj2E8Qf5G5k1Y8=</string>
+</dict>
+</plist>
