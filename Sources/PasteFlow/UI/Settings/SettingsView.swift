@@ -1389,7 +1389,8 @@ public struct SettingsView: View {
                         .font(.system(size: 13))
                         .foregroundColor(.secondary)
                     
-                    Text("Bundle ID: com.ma.pasteflow · Build \(buildNumber)")
+                    let bundleId = Bundle.main.bundleIdentifier ?? "com.nick.pasteflow"
+                    Text("Bundle ID: \(bundleId) · Build \(buildNumber)")
                         .font(.system(size: 11, design: .monospaced))
                         .foregroundColor(.secondary.opacity(0.8))
                 }
