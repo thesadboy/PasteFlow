@@ -23,7 +23,7 @@ const sampleCards = [
     typeName: '色值',
     category: 'color',
     badge: '⌘ 2',
-    colorHex: '#8B5CF6',
+    colorHex: '#0A84FF',
     app: 'Figma',
     time: '2分钟前'
   },
@@ -33,8 +33,8 @@ const sampleCards = [
     typeName: '文件',
     category: 'file',
     badge: '⌘ 3',
-    fileName: 'PasteFlow_v1.0.0.dmg',
-    fileSize: '15.8 MB',
+    fileName: 'PasteFlow.dmg',
+    fileSize: '2.2 MB',
     app: 'Finder',
     time: '5分钟前'
   },
