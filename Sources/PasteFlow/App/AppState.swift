@@ -148,13 +148,22 @@ public final class AppState: ObservableObject {
             
             // Check if exact duplicate exists anywhere in the list
             if let idx = self.items.firstIndex(where: { $0.plainText == item.plainText && $0.type == item.type }) {
-                var updated = self.items[idx]
-                updated.createdAt = Date()
-                // Preserve pin status and other metadata when updating a duplicate
-                updated.isPinned = self.items[idx].isPinned
-                updated.pinboardId = self.items[idx].pinboardId
+                let existingItem = self.items[idx]
+                var newItem = item
+                // Preserve pin status and pinboard attribution
+                newItem.isPinned = existingItem.isPinned
+                newItem.pinboardId = existingItem.pinboardId
+                
+                // Clean up old duplicate's snapshot & old image if ID differs
+                if existingItem.id != newItem.id {
+                    self.storage.deleteSnapshot(id: existingItem.id)
+                    if let oldImg = existingItem.imageFileName, oldImg != newItem.imageFileName {
+                        self.storage.deleteImage(fileName: oldImg)
+                    }
+                }
+                
                 self.items.remove(at: idx)
-                self.items.insert(updated, at: 0)
+                self.items.insert(newItem, at: 0)
             } else {
                 self.items.insert(item, at: 0)
             }
@@ -211,6 +220,7 @@ public final class AppState: ObservableObject {
                 if let fileName = item.imageFileName {
                     storage.deleteImage(fileName: fileName)
                 }
+                storage.deleteSnapshot(id: item.id)
             }
             items.removeAll { $0.pinboardId == nil && !$0.isPinned && $0.createdAt < cutoff }
             if selectedIndex >= filteredItems.count {
@@ -243,12 +253,13 @@ public final class AppState: ObservableObject {
             let keptNormal = Array(normal.prefix(allowedNormal))
             let keptSet = Set(protected.map { $0.id }).union(keptNormal.map { $0.id })
             
-            // Clean up orphan images for removed items
+            // Clean up orphan images and snapshots for removed items
             let removedItems = items.filter { !keptSet.contains($0.id) }
             for it in removedItems {
                 if let img = it.imageFileName {
                     storage.deleteImage(fileName: img)
                 }
+                storage.deleteSnapshot(id: it.id)
             }
             
             items = items.filter { keptSet.contains($0.id) }
@@ -262,6 +273,7 @@ public final class AppState: ObservableObject {
         if let fileName = item.imageFileName {
             storage.deleteImage(fileName: fileName)
         }
+        storage.deleteSnapshot(id: item.id)
         items.removeAll { $0.id == item.id }
         if selectedIndex >= filteredItems.count {
             selectedIndex = max(0, filteredItems.count - 1)
@@ -276,6 +288,7 @@ public final class AppState: ObservableObject {
             if let fileName = item.imageFileName {
                 storage.deleteImage(fileName: fileName)
             }
+            storage.deleteSnapshot(id: item.id)
         }
         items.removeAll { $0.pinboardId == nil && !$0.isPinned }
         selectedIndex = 0

@@ -9,6 +9,7 @@ public final class StorageManager {
     private let clipsURL: URL
     private let pinboardsURL: URL
     private let imagesDirectoryURL: URL
+    private let snapshotsDirectoryURL: URL
     
     private var saveWorkItem: DispatchWorkItem?
     private let queue: DispatchQueue = {
@@ -22,6 +23,7 @@ public final class StorageManager {
         clipsURL = appSupportURL.appendingPathComponent("clips.json")
         pinboardsURL = appSupportURL.appendingPathComponent("pinboards.json")
         imagesDirectoryURL = appSupportURL.appendingPathComponent("Images", isDirectory: true)
+        snapshotsDirectoryURL = appSupportURL.appendingPathComponent("Snapshots", isDirectory: true)
         
         createDirectoriesIfNeeded()
     }
@@ -29,6 +31,7 @@ public final class StorageManager {
     private func createDirectoriesIfNeeded() {
         try? fileManager.createDirectory(at: appSupportURL, withIntermediateDirectories: true)
         try? fileManager.createDirectory(at: imagesDirectoryURL, withIntermediateDirectories: true)
+        try? fileManager.createDirectory(at: snapshotsDirectoryURL, withIntermediateDirectories: true)
     }
     
     // MARK: - Items Storage
@@ -209,6 +212,41 @@ public final class StorageManager {
         try? fileManager.removeItem(at: fileURL)
     }
     
+    // MARK: - Full-Fidelity Pasteboard Snapshot Storage
+    
+    public func saveSnapshot(_ snapshot: PasteboardSnapshot, id: UUID) {
+        queue.async { [weak self] in
+            guard let self = self else { return }
+            let fileURL = self.snapshotsDirectoryURL.appendingPathComponent("\(id.uuidString).plist")
+            do {
+                let data = try PropertyListEncoder().encode(snapshot)
+                try data.write(to: fileURL, options: .atomic)
+            } catch {
+                print("[StorageManager] Error saving snapshot: \(error)")
+            }
+        }
+    }
+    
+    public func loadSnapshot(id: UUID) -> PasteboardSnapshot? {
+        let fileURL = snapshotsDirectoryURL.appendingPathComponent("\(id.uuidString).plist")
+        guard fileManager.fileExists(atPath: fileURL.path) else { return nil }
+        do {
+            let data = try Data(contentsOf: fileURL)
+            return try PropertyListDecoder().decode(PasteboardSnapshot.self, from: data)
+        } catch {
+            print("[StorageManager] Error loading snapshot: \(error)")
+            return nil
+        }
+    }
+    
+    public func deleteSnapshot(id: UUID) {
+        queue.async { [weak self] in
+            guard let self = self else { return }
+            let fileURL = self.snapshotsDirectoryURL.appendingPathComponent("\(id.uuidString).plist")
+            try? self.fileManager.removeItem(at: fileURL)
+        }
+    }
+    
     // MARK: - Storage Size & Management
     
     /// Calculates the total physical storage size used by PasteFlow in Application Support
@@ -238,5 +276,15 @@ public final class StorageManager {
     /// Reveals the PasteFlow application support folder in Finder
     public func openStorageFolderInFinder() {
         NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: appSupportURL.path)
+    }
+}
+
+// MARK: - Full-Fidelity Pasteboard Snapshot Payload
+public struct PasteboardSnapshot: Codable {
+    /// Each element represents an NSPasteboardItem, mapping PasteboardType.rawValue to its raw binary Data
+    public var items: [[String: Data]]
+    
+    public init(items: [[String: Data]]) {
+        self.items = items
     }
 }

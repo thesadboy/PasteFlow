@@ -104,6 +104,29 @@ public final class ClipboardMonitor {
     private func parsePasteboard(appName: String, bundleId: String, iconData: Data?) -> ClipItem? {
         let itemID = UUID()
         
+        // 0. Full-Fidelity Snapshot Capture: 复制的时候系统怎么存，软件就怎么完整存
+        guard let pbItems = pasteboard.pasteboardItems, !pbItems.isEmpty else {
+            return nil
+        }
+        var snapshotItems: [[String: Data]] = []
+        for pbItem in pbItems {
+            var dict: [String: Data] = [:]
+            for type in pbItem.types {
+                if let data = pbItem.data(forType: type) {
+                    dict[type.rawValue] = data
+                }
+            }
+            if !dict.isEmpty {
+                snapshotItems.append(dict)
+            }
+        }
+        if !snapshotItems.isEmpty {
+            let snapshot = PasteboardSnapshot(items: snapshotItems)
+            StorageManager.shared.saveSnapshot(snapshot, id: itemID)
+        }
+        
+        // MARK: - Presentation Extraction (仅用于卡片列表展示、分类与搜索，不影响原始快照回放)
+        
         // 1. Check for File content FIRST (Crucial: Finder sets public.tiff for files, which false-triggers image checks)
         var filePaths: [String] = []
         let filenamesType = NSPasteboard.PasteboardType("NSFilenamesPboardType")
@@ -150,13 +173,60 @@ public final class ClipboardMonitor {
             }
         }
         
+        // Capture rich text representations (RTF and HTML)
+        var rtfData = pasteboard.data(forType: .rtf)
+        var htmlData = pasteboard.data(forType: .html)
+        
         // 2. Extract Text & Check if there is valid text
-        let rawString = pasteboard.string(forType: .string)
-        let cleanString = rawString?
+        var rawString = pasteboard.string(forType: .string)
+        if rawString == nil || rawString?.isEmpty == true {
+            rawString = pasteboard.string(forType: NSPasteboard.PasteboardType("public.utf16-plain-text"))
+        }
+        
+        var cleanString = rawString?
             .replacingOccurrences(of: "\u{FFFC}", with: "")
             .replacingOccurrences(of: "\u{FFFD}", with: "")
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let hasValidText = !cleanString.isEmpty
+        
+        // If plain string extraction is empty, attempt to extract fallback text from RTF or HTML
+        if cleanString.isEmpty, let rtf = rtfData,
+           let attr = try? NSAttributedString(data: rtf, options: [.documentType: NSAttributedString.DocumentType.rtf], documentAttributes: nil) {
+            let extracted = attr.string.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !extracted.isEmpty {
+                cleanString = extracted
+                if rawString == nil || rawString?.isEmpty == true {
+                    rawString = attr.string
+                }
+            }
+        }
+        if cleanString.isEmpty, let html = htmlData,
+           let attr = try? NSAttributedString(data: html, options: [.documentType: NSAttributedString.DocumentType.html], documentAttributes: nil) {
+            let extracted = attr.string.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !extracted.isEmpty {
+                cleanString = extracted
+                if rawString == nil || rawString?.isEmpty == true {
+                    rawString = attr.string
+                }
+            }
+        }
+        
+        // Check if pasteboard contains rich document/table types (Office Excel/Word, Web, RTF tables)
+        let hasDocumentTypes: Bool = {
+            guard let types = pasteboard.types else { return false }
+            let richTypeNames: Set<String> = [
+                "public.html",
+                "Apple HTML pasteboard type",
+                "public.rtf",
+                "NeXT Rich Text Format v1.0 pasteboard type",
+                "com.microsoft.Embed-Source",
+                "com.microsoft.DataObject",
+                "com.apple.webarchive",
+                "Apple Web Archive pasteboard type"
+            ]
+            return types.contains(where: { richTypeNames.contains($0.rawValue) })
+        }()
+        
+        let hasValidText = !cleanString.isEmpty || hasDocumentTypes
         
         // 3. Extract Image Representation (if present in pasteboard)
         var hasImage = false
@@ -188,8 +258,8 @@ public final class ClipboardMonitor {
             }
         }
         
-        // 4. Pure Image case: If no valid text exists but image exists (e.g. screenshots, copied pictures)
-        if !hasValidText && hasImage {
+        // 4. Pure Image case: MUST have NO text AND NO document/table structures, but has an image (e.g. screenshots)
+        if !hasValidText && !hasDocumentTypes && hasImage {
             let width = attachedWidth ?? 0
             let height = attachedHeight ?? 0
             let caption = "图片 (\(width) × \(height))"
@@ -208,16 +278,19 @@ public final class ClipboardMonitor {
             )
         }
         
-        // 5. Must have valid text to proceed to text-based items
+        // 5. Must have valid text or document content to proceed to text-based items
         guard hasValidText else {
             return nil
         }
         
-        let string = rawString?.trimmingCharacters(in: .whitespacesAndNewlines) ?? cleanString
-        
-        // Capture rich text representations (RTF and HTML)
-        var rtfData = pasteboard.data(forType: .rtf)
-        var htmlData = pasteboard.data(forType: .html)
+        let string: String
+        if !cleanString.isEmpty {
+            string = rawString?.trimmingCharacters(in: .whitespacesAndNewlines) ?? cleanString
+        } else if hasDocumentTypes {
+            string = "表格内容"
+        } else {
+            string = cleanString
+        }
         
         // If we have HTML but no RTF, synthesize RTF so Office / RTF-only apps can paste
         if rtfData == nil, let html = htmlData {

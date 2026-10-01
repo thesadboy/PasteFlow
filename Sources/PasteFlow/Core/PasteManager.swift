@@ -179,21 +179,37 @@ public final class PasteManager {
             return
         }
         
+        // 1. Full-Fidelity Replay: 优先回放当时系统复制的完整原始数据结构 (100% 格式保真)
+        if let snapshot = StorageManager.shared.loadSnapshot(id: item.id), !snapshot.items.isEmpty {
+            var pbItems: [NSPasteboardItem] = []
+            for itemDict in snapshot.items {
+                let pbItem = NSPasteboardItem()
+                for (typeStr, data) in itemDict {
+                    pbItem.setData(data, forType: NSPasteboard.PasteboardType(typeStr))
+                }
+                pbItems.append(pbItem)
+            }
+            if !pbItems.isEmpty && pasteboard.writeObjects(pbItems) {
+                return
+            }
+        }
+        
+        // 2. Fallback Replay: 兼容历史旧记录或无快照记录
         switch item.type {
         case .image:
-            let pbItem = NSPasteboardItem()
+            var wroteImage = false
             if let fileName = item.imageFileName,
                let pngData = StorageManager.shared.loadFullImageData(fileName: fileName),
                let image = NSImage(data: pngData) {
+                let pbItem = NSPasteboardItem()
                 if let tiffData = image.tiffRepresentation {
                     pbItem.setData(tiffData, forType: .tiff)
                 }
                 pbItem.setData(pngData, forType: .png)
-                if !item.plainText.isEmpty {
-                    pbItem.setString(item.plainText, forType: .string)
-                }
                 pasteboard.writeObjects([pbItem])
-            } else {
+                wroteImage = true
+            }
+            if !wroteImage {
                 pasteboard.setString(item.plainText, forType: .string)
             }
             
