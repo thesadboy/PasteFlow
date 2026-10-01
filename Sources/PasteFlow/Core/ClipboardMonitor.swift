@@ -150,7 +150,21 @@ public final class ClipboardMonitor {
             }
         }
         
-        // 2. Check for Image content (pure bitmap or screenshots)
+        // 2. Extract Text & Check if there is valid text
+        let rawString = pasteboard.string(forType: .string)
+        let cleanString = rawString?
+            .replacingOccurrences(of: "\u{FFFC}", with: "")
+            .replacingOccurrences(of: "\u{FFFD}", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let hasValidText = !cleanString.isEmpty
+        
+        // 3. Extract Image Representation (if present in pasteboard)
+        var hasImage = false
+        var attachedImageFileName: String? = nil
+        var attachedWidth: Int? = nil
+        var attachedHeight: Int? = nil
+        var imageByteSize: Int64 = 0
+        
         if let image = NSImage(pasteboard: pasteboard),
            let tiffData = image.tiffRepresentation,
            let bitmap = NSBitmapImageRep(data: tiffData),
@@ -158,16 +172,28 @@ public final class ClipboardMonitor {
             
             let width = Int(image.size.width)
             let height = Int(image.size.height)
+            if width > 0 && height > 0 {
+                hasImage = true
+                attachedWidth = width
+                attachedHeight = height
+                imageByteSize = Int64(pngData.count)
+                let fileName = "\(itemID.uuidString).png"
+                attachedImageFileName = fileName
+                
+                // Save image to disk asynchronously
+                let saveID = itemID
+                DispatchQueue.global(qos: .utility).async {
+                    _ = StorageManager.shared.saveImage(data: pngData, id: saveID)
+                }
+            }
+        }
+        
+        // 4. Pure Image case: If no valid text exists but image exists (e.g. screenshots, copied pictures)
+        if !hasValidText && hasImage {
+            let width = attachedWidth ?? 0
+            let height = attachedHeight ?? 0
             let caption = "图片 (\(width) × \(height))"
             
-            // Save image to disk on background thread
-            let saveID = itemID
-            DispatchQueue.global(qos: .utility).async {
-                _ = StorageManager.shared.saveImage(data: pngData, id: saveID)
-            }
-            
-            // Register the item immediately with the expected filename
-            let fileName = "\(itemID.uuidString).png"
             return ClipItem(
                 id: itemID,
                 type: .image,
@@ -175,18 +201,19 @@ public final class ClipboardMonitor {
                 sourceAppName: appName,
                 sourceAppBundleId: bundleId,
                 sourceAppIconData: iconData,
-                imageFileName: fileName,
+                imageFileName: attachedImageFileName,
                 imageWidth: width,
                 imageHeight: height,
-                fileSize: Int64(pngData.count)
+                fileSize: imageByteSize
             )
         }
         
-        // 3. Check for String / Text content
-        guard let string = pasteboard.string(forType: .string)?.trimmingCharacters(in: .whitespacesAndNewlines),
-              !string.isEmpty else {
+        // 5. Must have valid text to proceed to text-based items
+        guard hasValidText else {
             return nil
         }
+        
+        let string = rawString?.trimmingCharacters(in: .whitespacesAndNewlines) ?? cleanString
         
         // Capture rich text representations (RTF and HTML)
         var rtfData = pasteboard.data(forType: .rtf)
@@ -215,7 +242,10 @@ public final class ClipboardMonitor {
                 sourceAppName: appName,
                 sourceAppBundleId: bundleId,
                 sourceAppIconData: iconData,
-                colorHex: hex
+                colorHex: hex,
+                imageFileName: attachedImageFileName,
+                imageWidth: attachedWidth,
+                imageHeight: attachedHeight
             )
         }
         
@@ -230,7 +260,10 @@ public final class ClipboardMonitor {
                 sourceAppBundleId: bundleId,
                 sourceAppIconData: iconData,
                 linkURL: string,
-                linkTitle: host
+                linkTitle: host,
+                imageFileName: attachedImageFileName,
+                imageWidth: attachedWidth,
+                imageHeight: attachedHeight
             )
         }
         
@@ -245,11 +278,14 @@ public final class ClipboardMonitor {
                 sourceAppName: appName,
                 sourceAppBundleId: bundleId,
                 sourceAppIconData: iconData,
-                codeLanguage: lang
+                codeLanguage: lang,
+                imageFileName: attachedImageFileName,
+                imageWidth: attachedWidth,
+                imageHeight: attachedHeight
             )
         }
         
-        // Default Plain/Rich Text
+        // Default Plain/Rich Text (Office / WPS / Web copy will preserve text, RTF, HTML and attached image)
         return ClipItem(
             id: itemID,
             type: .text,
@@ -258,7 +294,10 @@ public final class ClipboardMonitor {
             htmlData: htmlData,
             sourceAppName: appName,
             sourceAppBundleId: bundleId,
-            sourceAppIconData: iconData
+            sourceAppIconData: iconData,
+            imageFileName: attachedImageFileName,
+            imageWidth: attachedWidth,
+            imageHeight: attachedHeight
         )
     }
     

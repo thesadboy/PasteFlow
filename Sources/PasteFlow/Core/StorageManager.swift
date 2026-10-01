@@ -132,6 +132,11 @@ public final class StorageManager {
         return memoryImageCache.object(forKey: fileName as NSString)
     }
     
+    public func loadFullImageData(fileName: String) -> Data? {
+        let fileURL = imagesDirectoryURL.appendingPathComponent(fileName)
+        return try? Data(contentsOf: fileURL)
+    }
+    
     public func loadImage(fileName: String) -> NSImage? {
         if let cached = memoryImageCache.object(forKey: fileName as NSString) {
             return cached

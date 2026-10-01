@@ -181,9 +181,18 @@ public final class PasteManager {
         
         switch item.type {
         case .image:
+            let pbItem = NSPasteboardItem()
             if let fileName = item.imageFileName,
-               let image = StorageManager.shared.loadImage(fileName: fileName) {
-                pasteboard.writeObjects([image])
+               let pngData = StorageManager.shared.loadFullImageData(fileName: fileName),
+               let image = NSImage(data: pngData) {
+                if let tiffData = image.tiffRepresentation {
+                    pbItem.setData(tiffData, forType: .tiff)
+                }
+                pbItem.setData(pngData, forType: .png)
+                if !item.plainText.isEmpty {
+                    pbItem.setString(item.plainText, forType: .string)
+                }
+                pasteboard.writeObjects([pbItem])
             } else {
                 pasteboard.setString(item.plainText, forType: .string)
             }
@@ -235,6 +244,17 @@ public final class PasteManager {
             }
             if let html = htmlData {
                 pbItem.setData(html, forType: .html)
+            }
+            
+            // Companion image representation (e.g. Office / WPS generated snapshot)
+            // System and target apps choose whether to read text/rich text or image
+            if let fileName = item.imageFileName,
+               let pngData = StorageManager.shared.loadFullImageData(fileName: fileName),
+               let image = NSImage(data: pngData) {
+                if let tiffData = image.tiffRepresentation {
+                    pbItem.setData(tiffData, forType: .tiff)
+                }
+                pbItem.setData(pngData, forType: .png)
             }
             
             pasteboard.writeObjects([pbItem])
