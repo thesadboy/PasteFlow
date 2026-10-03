@@ -8,6 +8,24 @@ public final class PasteManager {
     public var isSelfCopying: Bool = false
     public private(set) var previousApp: NSRunningApplication?
     
+    private var ignoredChangeCounts = Set<Int>()
+    private let lock = NSLock()
+    
+    public func registerSelfChangeCount(_ count: Int) {
+        lock.lock()
+        defer { lock.unlock() }
+        ignoredChangeCounts.insert(count)
+        if ignoredChangeCounts.count > 30 {
+            ignoredChangeCounts.removeFirst()
+        }
+    }
+    
+    public func isChangeCountIgnored(_ count: Int) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return ignoredChangeCounts.remove(count) != nil
+    }
+    
     private init() {
         // Monitor frontmost app changes to keep previousApp updated
         NSWorkspace.shared.notificationCenter.addObserver(
@@ -176,6 +194,7 @@ public final class PasteManager {
         
         if plainTextOnly {
             pasteboard.setString(item.plainText, forType: .string)
+            registerSelfChangeCount(pasteboard.changeCount)
             return
         }
         
@@ -190,6 +209,7 @@ public final class PasteManager {
                 pbItems.append(pbItem)
             }
             if !pbItems.isEmpty && pasteboard.writeObjects(pbItems) {
+                registerSelfChangeCount(pasteboard.changeCount)
                 return
             }
         }
@@ -275,6 +295,7 @@ public final class PasteManager {
             
             pasteboard.writeObjects([pbItem])
         }
+        registerSelfChangeCount(pasteboard.changeCount)
     }
     
     private func simulateCmdV() {

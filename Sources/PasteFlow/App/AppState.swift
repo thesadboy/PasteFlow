@@ -422,6 +422,9 @@ public final class AppState: ObservableObject {
     public func showOverlay() {
         PasteManager.shared.recordPreviousApp()
         selectedIndex = 0
+        selectedTypeFilter = nil
+        selectedPinboardId = nil
+        searchQuery = ""
         isOverlayVisible = true
         OverlayPanel.shared.show()
     }

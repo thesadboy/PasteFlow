@@ -38,15 +38,16 @@ public final class ClipboardMonitor {
     private func checkPasteboard() {
         let currentChangeCount = pasteboard.changeCount
         guard currentChangeCount != lastChangeCount else { return }
-        lastChangeCount = currentChangeCount
         
-        // Skip if monitoring is paused
-        if isPaused {
+        // Skip if self triggered paste/copy (精确匹配自身写入的changeCount，配合isSelfCopying防护)
+        if PasteManager.shared.isChangeCountIgnored(currentChangeCount) || PasteManager.shared.isSelfCopying {
+            lastChangeCount = currentChangeCount
             return
         }
         
-        // Skip if self triggered paste/copy
-        if PasteManager.shared.isSelfCopying {
+        // Skip if monitoring is paused
+        if isPaused {
+            lastChangeCount = currentChangeCount
             return
         }
         
@@ -55,6 +56,7 @@ public final class ClipboardMonitor {
         let bundleId = frontApp?.bundleIdentifier ?? ""
         
         if PrivacyManager.shared.isIgnored(bundleId: bundleId) {
+            lastChangeCount = currentChangeCount
             return
         }
         
@@ -67,6 +69,7 @@ public final class ClipboardMonitor {
         ]
         
         if let types = pasteboard.types, types.contains(where: { sensitiveTypes.contains($0) }) {
+            lastChangeCount = currentChangeCount
             return
         }
         
@@ -92,13 +95,39 @@ public final class ClipboardMonitor {
         }
         
         // Parse Pasteboard item
-        guard let item = parsePasteboard(appName: appName, bundleId: effectiveBundleId, iconData: appIconData) else {
+        if let item = parsePasteboard(appName: appName, bundleId: effectiveBundleId, iconData: appIconData) {
+            lastChangeCount = currentChangeCount
+            SoundManager.shared.playCopySound()
+            AppState.shared.addNewItem(item)
+        } else {
+            // 如果初次解析返回 nil，针对 Excel / Office 等支持延迟提供数据 (Promised Data) 的应用进行异步微重试，
+            // 避免因第三方应用数据尚未完成序列化而误丢弃复制事件
+            scheduleRetryCheck(for: currentChangeCount, appName: appName, bundleId: effectiveBundleId, iconData: appIconData, attempt: 1)
+        }
+    }
+    
+    /// 异步重试检查：针对 Office / Excel / Web 等延迟提供数据 (Promised Data) 的应用，给与 60ms ~ 150ms 准备时间
+    private func scheduleRetryCheck(for changeCount: Int, appName: String, bundleId: String, iconData: Data?, attempt: Int) {
+        guard attempt <= 2 else {
+            // 两次重试后仍无有效数据，确认跳过
+            lastChangeCount = changeCount
             return
         }
         
-        // Play sound and register item in AppState
-        SoundManager.shared.playCopySound()
-        AppState.shared.addNewItem(item)
+        let delayMs = attempt == 1 ? 60 : 150
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(delayMs)) { [weak self] in
+            guard let self = self else { return }
+            guard self.pasteboard.changeCount == changeCount else { return }
+            guard !self.isPaused else { return }
+            
+            if let item = self.parsePasteboard(appName: appName, bundleId: bundleId, iconData: iconData) {
+                self.lastChangeCount = changeCount
+                SoundManager.shared.playCopySound()
+                AppState.shared.addNewItem(item)
+            } else {
+                self.scheduleRetryCheck(for: changeCount, appName: appName, bundleId: bundleId, iconData: iconData, attempt: attempt + 1)
+            }
+        }
     }
     
     private func parsePasteboard(appName: String, bundleId: String, iconData: Data?) -> ClipItem? {
